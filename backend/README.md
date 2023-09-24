@@ -1,5 +1,10 @@
 # Photolabs API
 
+# photos
+![select phot](docs/1.png)
+![the list of photos](docs/2.png)
+![favorite photo](docs/3.png)
+
 ## Setup
 
 Install dependencies with `npm install`.
