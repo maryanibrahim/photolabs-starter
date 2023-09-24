@@ -1,13 +1,14 @@
 import React from 'react';
-
-import PhotoListItem from './components/PhotoListItem';
+import HomeRoute from './components/HomeRoute';
+import useApplicationData from './hooks/useApplicationData';
 import './App.scss';
 
-// Note: Rendering a single component to build components in isolation
 const App = () => {
+  const { favoritedPhotos, updateToFavPhotoIds, photoData } = useApplicationData();
+
   return (
     <div className="App">
-      <PhotoListItem/>
+      <HomeRoute favoritedPhotos={favoritedPhotos} updateToFavPhotoIds={updateToFavPhotoIds} photoData={photoData} />
     </div>
   );
 };

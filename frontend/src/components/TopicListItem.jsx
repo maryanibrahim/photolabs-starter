@@ -1,19 +1,21 @@
-import React from "react";
+import React from 'react';
+import PropTypes from 'prop-types';
+import '../styles/TopicListItem.scss';
 
-import "../styles/TopicListItem.scss";
-
-const sampleDataForTopicListItem = {
-  id: "1",
-  slug: "topic-1",
-  label: "Nature",
-};
-
-const TopicListItem = () => {
+const TopicListItem = ({ topic }) => {
   return (
     <div className="topic-list__item">
-      {/* Insert React */}
+      {topic.title}
     </div>
   );
+};
+
+TopicListItem.propTypes = {
+  topic: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    slug: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default TopicListItem;

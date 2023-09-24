@@ -15,4 +15,12 @@
 .photo-list__fav-icon-svg {
   padding: 7px;
   top: 2px;
+
+  svg {
+    transition: fill 0.3s; 
+  }
+
+  &.active svg {
+    fill: red; 
+}
 }

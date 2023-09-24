@@ -1,6 +1,7 @@
 .topic-list__item {
   line-height: 24px;
   margin-left: 24px;
+  
 }
 
 .topic-list__item span {
@@ -12,5 +13,9 @@
   &:hover {
     text-decoration: overline;
     color: #111;
+  }
+  .notification-icon {
+    margin-left: 5px;
+    color: red; 
   }
 }
