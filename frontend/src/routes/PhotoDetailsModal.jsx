@@ -1,64 +1,79 @@
-import React from 'react';
-import PhotoListItem from '../components/PhotoListItem';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import PhotoListItem from 'components/PhotoListItem';
 import '../styles/PhotoDetailsModal.scss';
 import closeSymbol from '../assets/closeSymbol.svg';
 
-const PhotoDetailsModal = ({ onClose, photo, photos, favoritedPhotos, setFavoritedPhotos, ...props }) => {
-    // Filtering out the current photo and getting the rest as "similar photos"
-    const similarPhotos = photos.filter(p => p.id !== photo.id);
-  
-    const isPhotoFavorited = (photoId) => {
-        return favoritedPhotos.includes(photoId);
-    
-    };
+const PhotoDetailsModal = ({ onClose, photo, likedPhotos, addFavoritePhoto, removeFavoritePhoto }) => {
+  const [isFavorited, setIsFavorited] = useState([]);
 
-    const toggleFavorite = (photoId) => {
-        setFavoritedPhotos((prevFavs) => {
-          const updatedFavs = isPhotoFavorited(photoId)
-            ? prevFavs.filter((id) => id !== photoId)
-            : [...prevFavs, photoId];
-      
-          console.log(updatedFavs); // Log the updated state
-          return updatedFavs; // Return the updated state
-        });
-      };
-    
-    return (
-      // The modal overlay
-      <div className="photo-details-modal-overlay" onClick={onClose}>
-        
-        <div className="photo-details-modal">
+ const toggleFavorite = (e, photoId) => {
+    e.stopPropagation(); // Prevents the click event from propagating to parent elements
 
-         {/* Close Button */}
-            <button className="photo-details-modal__close-button" onClick={onClose}>
-                <img src={closeSymbol} alt="close symbol" />
-            </button>
-  
-            {/* Display the larger version of the clicked photo */}
-            <img src={photo.urls.full} alt="clicked photo" className="photo-details-modal__image" />
+    if (isFavorited.includes(photoId)) {
+      removeFavoritePhoto(photoId);
+      setIsFavorited(prev => prev.filter(id => id !== photoId));
+    } else {
+      addFavoritePhoto(photoId);
+      setIsFavorited(prev => [...prev, photoId]);
+    }
+};
 
-            {/* Display similar photos */}
-            <div className="photo-details-modal__similar-photos">
-                <h3>Similar Photos</h3>
-                <div className="photo-details-modal__similar-photos-container">
-                    {similarPhotos.map(similarPhoto => (
-                        <PhotoListItem 
-                            key={similarPhoto.id} 
-                            imageSource={similarPhoto.urls.regular}
-                            username={similarPhoto.user.username}
-                            profile={similarPhoto.user.profile}
-                            id={similarPhoto.id}
-                            location={similarPhoto.location}
-                            
-                        />
-                    ))}
-                </div>
-            </div>
-  
-        </div>
-  
+
+  if (!photo) return null;
+
+  return (
+    <div className="photo-details-modal-overlay">
+      <div className="photo-details-modal">
+        <button className="photo-details-modal__close-button" onClick={onClose}>
+          <img src={closeSymbol} alt="close symbol" />
+        </button>
+
+        {photo.urls && photo.user && (
+          <div className="larger-photo-container">
+            <PhotoListItem 
+              imageSource={photo.urls.regular}
+              username={photo.user.username}
+              profile={photo.user.profile}
+              id={photo.id}
+              location={photo.location}
+              isFavorited={isFavorited.includes(photo.id)}
+              onLike={() => handleLikePhoto(photo.id)}
+              toggleFavorite={() => toggleFavorite(photo.id)}
+            />
+          </div>
+        )}
+
+        <h3>Similar Photos</h3>
+        {photo.similar_photos && (
+          <div className="photo-details-modal__similar-photos">
+            {photo.similar_photos.map(similarPhoto => (
+              similarPhoto.urls && similarPhoto.user && (
+                <PhotoListItem 
+                  key={similarPhoto.id}
+                  imageSource={similarPhoto.urls.regular}
+                  username={similarPhoto.user.username}
+                  profile={similarPhoto.user.profile}
+                  id={similarPhoto.id}
+                  location={similarPhoto.location}
+                  isFavorited={likedPhotos.includes(similarPhoto.id)}
+                  toggleFavorite={() => toggleFavorite(similarPhoto.id)}
+                />
+              )
+            ))}
+          </div>
+        )}
       </div>
-    )
+    </div>
+  );
+};
+
+PhotoDetailsModal.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  photo: PropTypes.object,
+  likedPhotos: PropTypes.array.isRequired,
+  addFavoritePhoto: PropTypes.func.isRequired,
+  removeFavoritePhoto: PropTypes.func.isRequired
 };
 
 export default PhotoDetailsModal;

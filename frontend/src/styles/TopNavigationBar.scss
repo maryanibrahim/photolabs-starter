@@ -18,17 +18,10 @@
   text-underline-position: auto;
   margin-left: 24px;
 }
-.liked-photos-notification {
+
+.fav-notification {
   color: red;
   margin-left: 10px;
   cursor: pointer;
 }
 
-.notification-dot {
-  width: 10px;
-  height: 10px;
-  background-color: yellow;
-  border-radius: 50%;
-  display: inline-block;
-  margin-left: 5px;
-}

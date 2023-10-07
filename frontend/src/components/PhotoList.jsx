@@ -1,38 +1,47 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import PhotoListItem from './PhotoListItem'; 
 import '../styles/PhotoList.scss';
 
 const PhotoList = ({ photos, likedPhotos, onLikePhoto, onOpenModal }) => {
 
-  // Function to handle a photo click and open the modal
   const handlePhotoClick = (photo) => {
-    console.log(photo); // This will print the photo data to the console
+    onOpenModal(photo);
+  };
 
-    onOpenModal(photo); // Pass the photo data to the onOpenModal function to open the modal
+  const handleLikePhoto = (photoId) => {
+    if (typeof onLikePhoto !== 'function') {
+      return;
+    }
+    onLikePhoto(photoId);
   };
 
   return (
     <ul className="photo-list">
       {photos.map(photo => (
         <li key={photo.id} onClick={() => handlePhotoClick(photo)}>
-          {/* Pass photo data and actions as props to PhotoListItem */}
           <PhotoListItem 
             imageSource={photo.urls.regular}
             username={photo.user.username}
             profile={photo.user.profile}
-            id={photo.id}
+            id={String(photo.id)}  
             location={photo.location}
-
-            // Pass the onLikePhoto function as a prop to handle liking photos
-            onLikePhoto={onLikePhoto}
-
-            // Check if the photo is liked and pass the info as a prop
-            isLiked={likedPhotos.includes(photo.id)}
+            toggleFavorite={() => handleLikePhoto(photo.id)}
+            isFavorited={likedPhotos.includes(photo.id)}
+            onLike={() => handleLikePhoto(photo.id)}
           />
         </li>
       ))}
     </ul>
   );
 }
+
+PhotoList.propTypes = {
+  photos: PropTypes.array.isRequired,
+  likedPhotos: PropTypes.array.isRequired,
+  onOpenModal: PropTypes.func.isRequired,
+  onLikePhoto: PropTypes.func.isRequired,
+};
+
 
 export default PhotoList;

@@ -15,10 +15,9 @@ const ACTIONS = {
 function applicationDataReducer(state, action) {
   switch (action.type) {
     case ACTIONS.FAV_PHOTO_ADDED:
-      if (!state.favoritedPhotos.includes(action.payload.id)) {
-        return { ...state, favoritedPhotos: [...state.favoritedPhotos, action.payload.id] };
-      }
-      return state;
+      return state.favoritedPhotos.includes(action.payload.id) 
+        ? state 
+        : { ...state, favoritedPhotos: [...state.favoritedPhotos, action.payload.id] };
 
     case ACTIONS.FAV_PHOTO_REMOVED:
       return { ...state, favoritedPhotos: state.favoritedPhotos.filter(id => id !== action.payload.id) };
@@ -43,7 +42,6 @@ function applicationDataReducer(state, action) {
   }
 }
 
-// Initial state
 const initialState = {
   favoritedPhotos: [],
   showModal: false,
@@ -53,79 +51,52 @@ const initialState = {
   selectedTopicId: null,
 };
 
-// Custom hook to manage application data and actions
 function useApplicationData() {
   const [state, dispatch] = useReducer(applicationDataReducer, initialState);
 
-  function openModal(photo) {
-    dispatch({ type: ACTIONS.OPEN_MODAL, payload: { photo } });
-  }
-
-  function closeModal() {
-    dispatch({ type: ACTIONS.CLOSE_MODAL });
-  }
-
-  function setSelectedTopic(topicId) {
-    dispatch({ type: ACTIONS.SET_SELECTED_TOPIC, payload: topicId });  
-  }
+  const openModal = (photo) => dispatch({ type: ACTIONS.OPEN_MODAL, payload: { photo } });
+  const closeModal = () => dispatch({ type: ACTIONS.CLOSE_MODAL });
+  const setSelectedTopic = (topicId) => dispatch({ type: ACTIONS.SET_SELECTED_TOPIC, payload: topicId });
 
   // Fetch photo data
   useEffect(() => {
     fetch("http://localhost:8001/api/photos")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log("Received photo data:", data);
-        dispatch({ type: ACTIONS.SET_PHOTO_DATA, payload: data });
-      })
-      .catch(error => {
-        console.error('Error fetching photo data:', error);
-      });
-  
-    // Fetch topic data
+      .then(response => response.json())
+      .then(data => dispatch({ type: ACTIONS.SET_PHOTO_DATA, payload: data }))
+      .catch(error => console.error('Error fetching photo data:', error));
+
     fetch('/api/topics')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log("Received topic data:", data);
-        dispatch({ type: ACTIONS.SET_TOPIC_DATA, payload: data });
-      })
-      .catch((error) => {
-        console.error('Error fetching topic data:', error);
-      });
+      .then(response => response.json())
+      .then(data => dispatch({ type: ACTIONS.SET_TOPIC_DATA, payload: data }))
+      .catch(error => console.error('Error fetching topic data:', error));
   }, []);
 
-  // Fetch photos by the selected topic
   useEffect(() => {
     if (state.selectedTopicId) {
       fetch(`http://localhost:8001/api/topics/photos/${state.selectedTopicId}`)
         .then(response => response.json())
-        .then(data => {
-          console.log("Received photos by topic:", data);
-          dispatch({ type: ACTIONS.SET_PHOTO_DATA, payload: data });
-        })
+        .then(data => dispatch({ type: ACTIONS.SET_PHOTO_DATA, payload: data }))
         .catch(error => console.error("Error fetching photos by topic:", error));
     }
   }, [state.selectedTopicId]);
 
-  // Return state and functions
+  const addFavoritePhoto = (photoId) => {
+    if (!state.favoritedPhotos.includes(photoId)) {
+      dispatch({ type: ACTIONS.FAV_PHOTO_ADDED, payload: { id: photoId } });
+    }
+  };
+
+  const removeFavoritePhoto = (photoId) => {
+    dispatch({ type: ACTIONS.FAV_PHOTO_REMOVED, payload: { id: photoId } });
+  };
+
   return {
-    favoritedPhotos: state.favoritedPhotos,
-    showModal: state.showModal,
-    selectedPhoto: state.selectedPhoto,
-    photoData: state.photoData,
-    topicData: state.topicData,
+    ...state,
     openModal,
     closeModal,
     setSelectedTopic,
+    addFavoritePhoto,
+    removeFavoritePhoto
   };
 }
 
