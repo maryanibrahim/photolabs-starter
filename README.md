@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## Overview
 
 The PhotoLabs project for the Web Development React course programming that is image sharing and viewing platform.
@@ -37,13 +38,35 @@ To get started, install all dependencies for backend and server and start the fr
 
 
 ### [Frontend] Running Webpack Development Server
+=======
+# react-photolabs
+The PhotoLabs project for the Web Development React course programming.
+
+# Photolabs
+Build a client-side application using the React view-layer library
+
+# photos
+![select phot](docs/1.png)
+![the list of photos](docs/2.png)
+![favorite photo](docs/3.png)
+
+## Setup
+
+Install dependencies with `npm install` in each respective `/frontend` and `/backend`.
+
+## [Frontend] Running Webpack Development Server
+>>>>>>> 9874b0c (fetch data)
 
 ```sh
 cd frontend
 npm start
 ```
 
+<<<<<<< HEAD
 ### [Backend] Running Backend Server
+=======
+## [Backend] Running Backend Servier
+>>>>>>> 9874b0c (fetch data)
 
 Read `backend/readme` for further setup details.
 
@@ -51,6 +74,7 @@ Read `backend/readme` for further setup details.
 cd backend
 npm start
 ```
+<<<<<<< HEAD
  
 ### Dependencies
 - Node 16 or above
@@ -61,3 +85,5 @@ npm start
 - Dotenv
 - React version 18.2
 - Axios
+=======
+>>>>>>> 9874b0c (fetch data)
