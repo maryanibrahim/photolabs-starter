@@ -1,21 +1,17 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import '../styles/TopicListItem.scss';
 
-const TopicListItem = ({ topic }) => {
+const TopicListItem = ({ topicData, handleFetchTopic, topic_id }) => {
+  const handleTopicClick = () => {
+    // Call handleFetchTopic with the selected topic ID
+    handleFetchTopic(topic_id);
+  };
+
   return (
-    <div className="topic-list__item">
-      {topic.title}
+    <div className="topic-list__item" onClick={handleTopicClick}>
+      <span className="topic-list__item-text">{topicData}</span>
     </div>
   );
-};
-
-TopicListItem.propTypes = {
-  topic: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    slug: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-  }).isRequired,
 };
 
 export default TopicListItem;

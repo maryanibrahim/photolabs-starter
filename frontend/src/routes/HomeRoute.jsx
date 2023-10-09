@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import TopNavigationBar from 'components/TopNavigationBar';
 import PhotoList from 'components/PhotoList';
@@ -6,15 +6,31 @@ import PhotoDetailsModal from '../routes/PhotoDetailsModal';
 import '../styles/HomeRoute.scss';
 
 const HomeRoute = ({
-  favoritedPhotos, 
-  photoData, 
-  showModal, 
-  selectedPhoto, 
-  openModal, 
+  favoritedPhotos,
+  photoData,
+  showModal,
+  selectedPhoto,
+  openModal,
   closeModal,
   addFavoritePhoto,
-  removeFavoritePhoto
-}) =>  {
+  removeFavoritePhoto,
+  handleFetch,
+  topicData,
+  selectedTopicId,
+}) => {
+  // Use state to store the filtered photos
+  const [filteredPhotos, setFilteredPhotos] = useState([]);
+
+  useEffect(() => {
+    // Check if selectedTopicId is defined
+    if (selectedTopicId !== null) {
+      const filtered = photoData.filter((photo) => photo.topic_id === selectedTopicId);
+      setFilteredPhotos(filtered);
+    } else {
+      // If selectedTopicId is not defined, use all photos
+      setFilteredPhotos(photoData);
+    }
+  }, [selectedTopicId, photoData]);
 
   const handleFavPhotoUpdate = (photoId, isAdded) => {
     if (isAdded) {
@@ -26,19 +42,18 @@ const HomeRoute = ({
 
   return (
     <div className="home-route">
-      <TopNavigationBar likedPhotos={favoritedPhotos} />
+      <TopNavigationBar handleFetch={handleFetch} topicData={topicData} />
       <PhotoList
-        photos={photoData}
+        photos={filteredPhotos} // Use the filtered photos
         likedPhotos={favoritedPhotos}
         onOpenModal={openModal}
-        onLikePhoto={handleFavPhotoUpdate}  
+        onLikePhoto={handleFavPhotoUpdate}
       />
       {showModal && (
-        <PhotoDetailsModal 
-          onClose={closeModal} 
-          photo={selectedPhoto} 
-          photos={photoData} 
-          likedPhotos={favoritedPhotos}  // Pass the likedPhotos prop
+        <PhotoDetailsModal
+          onClose={closeModal}
+          photo={selectedPhoto}
+          likedPhotos={favoritedPhotos}
           addFavoritePhoto={addFavoritePhoto}
           removeFavoritePhoto={removeFavoritePhoto}
         />
@@ -55,7 +70,8 @@ HomeRoute.propTypes = {
   openModal: PropTypes.func.isRequired,
   closeModal: PropTypes.func.isRequired,
   addFavoritePhoto: PropTypes.func.isRequired,
-  removeFavoritePhoto: PropTypes.func.isRequired
+  removeFavoritePhoto: PropTypes.func.isRequired,
+  selectedTopicId: PropTypes.number,
 };
 
 export default HomeRoute;

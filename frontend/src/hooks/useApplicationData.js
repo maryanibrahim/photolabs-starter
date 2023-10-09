@@ -1,4 +1,5 @@
 import { useReducer, useEffect } from 'react';
+import axios from 'axios';
 
 // Define actions
 const ACTIONS = {
@@ -54,31 +55,24 @@ const initialState = {
 function useApplicationData() {
   const [state, dispatch] = useReducer(applicationDataReducer, initialState);
 
-  const openModal = (photo) => dispatch({ type: ACTIONS.OPEN_MODAL, payload: { photo } });
-  const closeModal = () => dispatch({ type: ACTIONS.CLOSE_MODAL });
-  const setSelectedTopic = (topicId) => dispatch({ type: ACTIONS.SET_SELECTED_TOPIC, payload: topicId });
-
-  // Fetch photo data
   useEffect(() => {
-    fetch("http://localhost:8001/api/photos")
-      .then(response => response.json())
-      .then(data => dispatch({ type: ACTIONS.SET_PHOTO_DATA, payload: data }))
-      .catch(error => console.error('Error fetching photo data:', error));
+    const photoApiUrl = 'http://localhost:8001/api/photos';
+    const topicApiUrl = 'http://localhost:8001/api/topics';
 
-    fetch('/api/topics')
-      .then(response => response.json())
-      .then(data => dispatch({ type: ACTIONS.SET_TOPIC_DATA, payload: data }))
-      .catch(error => console.error('Error fetching topic data:', error));
+    // Use Promise.all to fetch data from both endpoints concurrently
+    Promise.all([axios.get(photoApiUrl), axios.get(topicApiUrl)])
+      .then(([photoResponse, topicResponse]) => {
+        // Destructure the responses
+        const photoData = photoResponse.data;
+        const topicData = topicResponse.data;
+
+        dispatch({ type: ACTIONS.SET_PHOTO_DATA, payload: photoData });
+        dispatch({ type: ACTIONS.SET_TOPIC_DATA, payload: topicData });
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
   }, []);
-
-  useEffect(() => {
-    if (state.selectedTopicId) {
-      fetch(`http://localhost:8001/api/topics/photos/${state.selectedTopicId}`)
-        .then(response => response.json())
-        .then(data => dispatch({ type: ACTIONS.SET_PHOTO_DATA, payload: data }))
-        .catch(error => console.error("Error fetching photos by topic:", error));
-    }
-  }, [state.selectedTopicId]);
 
   const addFavoritePhoto = (photoId) => {
     if (!state.favoritedPhotos.includes(photoId)) {
@@ -90,13 +84,25 @@ function useApplicationData() {
     dispatch({ type: ACTIONS.FAV_PHOTO_REMOVED, payload: { id: photoId } });
   };
 
+  const openModal = (photo) => {
+    dispatch({ type: ACTIONS.OPEN_MODAL, payload: { photo } });
+  };
+
+  const closeModal = () => {
+    dispatch({ type: ACTIONS.CLOSE_MODAL });
+  };
+
+  const setSelectedTopic = (topicId) => {
+    dispatch({ type: ACTIONS.SET_SELECTED_TOPIC, payload: topicId });
+  };
+
   return {
     ...state,
+    addFavoritePhoto,
+    removeFavoritePhoto,
     openModal,
     closeModal,
     setSelectedTopic,
-    addFavoritePhoto,
-    removeFavoritePhoto
   };
 }
 
