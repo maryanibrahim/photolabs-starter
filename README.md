@@ -1,7 +1,3 @@
-# ![PhotoLabs Logo](./docs/logo.png)
-
-<br>
-
 ## Overview
 
 The PhotoLabs project for the Web Development React course programming that is image sharing and viewing platform.
