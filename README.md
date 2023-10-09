@@ -20,21 +20,9 @@ Using a cloned starter repo, PhotoLabs has been constructed using NODE with CSS/
 
 ## Pictures and Demo Video
 
-![Animation of PhotoLabs App](./docs/photolabs_animation.gif)
+![select photo](./docs/selectphoto.png)
 
-<br>
 
-![Screenshot of Homepage](./docs/photolabs_homepage.png)
-
-<br>
-
-![Screenshot of Modal and Fav Button](./docs/photolabs_modal.png)
-
-<br>
-
-![Screenshot of Notification Icon](./docs/photolabs_notification.png)
-
-<br>
 
 ## Getting Started
 
@@ -77,5 +65,3 @@ npm start
 - Dotenv
 - React version 18.2
 - Axios
-
-
