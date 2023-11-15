@@ -1,79 +1,49 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import PhotoListItem from 'components/PhotoListItem';
-import '../styles/PhotoDetailsModal.scss';
+import React from 'react';
+import '../styles/PhotoDetailsModal.scss'
 import closeSymbol from '../assets/closeSymbol.svg';
+import PhotoList from 'components/PhotoList';
+import PhotoFavButton from 'components/PhotoFavButton';
 
-const PhotoDetailsModal = ({ onClose, photo, likedPhotos, addFavoritePhoto, removeFavoritePhoto }) => {
-  const [isFavorited, setIsFavorited] = useState([]);
+const PhotoDetailsModal = (props) => {
+  const { closeModal, toggleModal, photosData, favourite, toggleFavorite, ...state } = props;
 
- const toggleFavorite = (e, photoId) => {
-    e.stopPropagation(); // Prevents the click event from propagating to parent elements
-
-    if (isFavorited.includes(photoId)) {
-      removeFavoritePhoto(photoId);
-      setIsFavorited(prev => prev.filter(id => id !== photoId));
-    } else {
-      addFavoritePhoto(photoId);
-      setIsFavorited(prev => [...prev, photoId]);
-    }
-};
-
-
-  if (!photo) return null;
+  // finds similar photos from the photo that was clicked on
+  const photo = photosData.find((photo) => photo.id === state.modalPhotoID);
+  const similarPhotos = Object.values(photo.similar_photos);
 
   return (
-    <div className="photo-details-modal-overlay">
-      <div className="photo-details-modal">
-        <button className="photo-details-modal__close-button" onClick={onClose}>
-          <img src={closeSymbol} alt="close symbol" />
-        </button>
+    <div className="photo-details-modal">
+      <button className="photo-details-modal__close-button">
+        <img src={closeSymbol} alt="close symbol" onClick={closeModal} />
+      </button>
 
-        {photo.urls && photo.user && (
-          <div className="larger-photo-container">
-            <PhotoListItem 
-              imageSource={photo.urls.regular}
-              username={photo.user.username}
-              profile={photo.user.profile}
-              id={photo.id}
-              location={photo.location}
-              isFavorited={isFavorited.includes(photo.id)}
-              onLike={() => handleLikePhoto(photo.id)}
-              toggleFavorite={() => toggleFavorite(photo.id)}
-            />
-          </div>
-        )}
+      <div className="photo-details-modal__images">
+        <PhotoFavButton id={photo.id} toggleFavorite={toggleFavorite} {...state} />
+        <img className="photo-details-modal__image" src={photo.urls.full} alt="Full" />
 
-        <h3>Similar Photos</h3>
-        {photo.similar_photos && (
-          <div className="photo-details-modal__similar-photos">
-            {photo.similar_photos.map(similarPhoto => (
-              similarPhoto.urls && similarPhoto.user && (
-                <PhotoListItem 
-                  key={similarPhoto.id}
-                  imageSource={similarPhoto.urls.regular}
-                  username={similarPhoto.user.username}
-                  profile={similarPhoto.user.profile}
-                  id={similarPhoto.id}
-                  location={similarPhoto.location}
-                  isFavorited={likedPhotos.includes(similarPhoto.id)}
-                  toggleFavorite={() => toggleFavorite(similarPhoto.id)}
-                />
-              )
-            ))}
+        <footer className="photo-details-modal__photographer-details">
+          <img className='photo-list__user-profile' src={photo.user.profile} alt='Profile' />
+
+          <div className='photo-list__user-info'>
+            {photo.user.name}
+
+            <div className='photo-list__user-location'>
+              {photo.location.city}, {photo.location.country}
+            </div>
           </div>
-        )}
+        </footer>
+
+        <header className="photo-details-modal__header">Similar Photos</header>
+       
+    <PhotoList 
+        {...state} 
+        photosData={photosData} 
+        toggleModal={toggleModal} 
+        toggleFavorite={toggleFavorite} />
+
       </div>
     </div>
   );
-};
-
-PhotoDetailsModal.propTypes = {
-  onClose: PropTypes.func.isRequired,
-  photo: PropTypes.object,
-  likedPhotos: PropTypes.array.isRequired,
-  addFavoritePhoto: PropTypes.func.isRequired,
-  removeFavoritePhoto: PropTypes.func.isRequired
 };
 
 export default PhotoDetailsModal;

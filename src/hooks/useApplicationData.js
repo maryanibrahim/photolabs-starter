@@ -1,109 +1,123 @@
 import { useReducer, useEffect } from 'react';
 import axios from 'axios';
 
-// Define actions
-const ACTIONS = {
-  FAV_PHOTO_ADDED: 'FAV_PHOTO_ADDED',
-  FAV_PHOTO_REMOVED: 'FAV_PHOTO_REMOVED',
-  OPEN_MODAL: 'OPEN_MODAL',
-  CLOSE_MODAL: 'CLOSE_MODAL',
-  SET_PHOTO_DATA: 'SET_PHOTO_DATA',
-  SET_TOPIC_DATA: 'SET_TOPIC_DATA',
-  SET_SELECTED_TOPIC: 'SET_SELECTED_TOPIC',
+// initials
+const initialState = {
+  photosData: [],
+  topicsData: [],
+  modalToggle: false,
+  modalPhotoID: null,
+  photoFavourites: [],
+  favSelected: false,
 };
 
-// Reducer function to manage application state
-function applicationDataReducer(state, action) {
+// actions
+const ACTIONS = {
+  MODAL_TOGGLE: 'modalToggle',
+  MODAL_CLOSE: 'modalClose',
+  SET_FAVOURITES: 'setFavourite',
+  FAVOURITE_TOGGLE: 'favouriteToggle',
+  FAVOURITE_UNTOGGLE: 'favouriteUnToggle',
+  SET_PHOTO_DATA: 'fetchPhotoData',
+  SET_TOPIC_DATA: 'fetchTopicData',
+  SET_PHOTO_BY_TOPIC: 'fetchPhotoByTopic',
+};
+
+// cases
+function reducer(state, action) {
   switch (action.type) {
-    case ACTIONS.FAV_PHOTO_ADDED:
-      return state.favoritedPhotos.includes(action.payload.id) 
-        ? state 
-        : { ...state, favoritedPhotos: [...state.favoritedPhotos, action.payload.id] };
-
-    case ACTIONS.FAV_PHOTO_REMOVED:
-      return { ...state, favoritedPhotos: state.favoritedPhotos.filter(id => id !== action.payload.id) };
-
-    case ACTIONS.OPEN_MODAL:
-      return { ...state, showModal: true, selectedPhoto: action.payload.photo };
-
-    case ACTIONS.CLOSE_MODAL:
-      return { ...state, showModal: false, selectedPhoto: null };
-
+    case ACTIONS.MODAL_TOGGLE:
+      return { ...state, modalToggle: true, modalPhotoID: action.payload };
+    case ACTIONS.MODAL_CLOSE:
+      return { ...state, modalToggle: false };
+    case ACTIONS.FAVOURITE_TOGGLE:
+      return { ...state, photoFavourites: [...state.photoFavourites, action.payload] };
+    case ACTIONS.FAVOURITE_UNTOGGLE:
+      return { ...state, photoFavourites: state.photoFavourites.filter(photo => photo.id !== action.payload.id), };
     case ACTIONS.SET_PHOTO_DATA:
-      return { ...state, photoData: action.payload };
-
+      return { ...state, photosData: action.payload };
     case ACTIONS.SET_TOPIC_DATA:
-      return { ...state, topicData: action.payload };
-
-    case ACTIONS.SET_SELECTED_TOPIC:
-      return { ...state, selectedTopicId: action.payload };
-
+      return { ...state, topicsData: action.payload };
+    case ACTIONS.SET_PHOTO_BY_TOPIC:
+      return { ...state, photosData: action.payload };
     default:
       return state;
   }
-}
-
-const initialState = {
-  favoritedPhotos: [],
-  showModal: false,
-  selectedPhoto: null,
-  photoData: [],
-  topicData: [],
-  selectedTopicId: null,
 };
 
-function useApplicationData() {
-  const [state, dispatch] = useReducer(applicationDataReducer, initialState);
+const useApplication = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  useEffect(() => {
-    const photoApiUrl = 'http://localhost:8001/api/photos';
-    const topicApiUrl = 'http://localhost:8001/api/topics';
+  // Toggle modal open
+  const toggleModal = similarPhotoID => {
+    dispatch({
+      type: ACTIONS.MODAL_TOGGLE,
+      payload: similarPhotoID,
+    });
+  };
 
-    // Use Promise.all to fetch data from both endpoints concurrently
-    Promise.all([axios.get(photoApiUrl), axios.get(topicApiUrl)])
-      .then(([photoResponse, topicResponse]) => {
-        // Destructure the responses
-        const photoData = photoResponse.data;
-        const topicData = topicResponse.data;
+  // Toggle modal close
+  const closeModal = () => {
+    dispatch({
+      type: ACTIONS.MODAL_CLOSE,
+    });
+  };
 
-        dispatch({ type: ACTIONS.SET_PHOTO_DATA, payload: photoData });
-        dispatch({ type: ACTIONS.SET_TOPIC_DATA, payload: topicData });
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
+  // Toggle favourite
+  const toggleFavorite = photoId => {
+    if (state.photoFavourites.find(photo => photo.id === photoId)) {
+      dispatch({
+        type: ACTIONS.FAVOURITE_UNTOGGLE,
+        payload: { id: photoId },
       });
-  }, []);
-
-  const addFavoritePhoto = (photoId) => {
-    if (!state.favoritedPhotos.includes(photoId)) {
-      dispatch({ type: ACTIONS.FAV_PHOTO_ADDED, payload: { id: photoId } });
+    } else {
+      dispatch({
+        type: ACTIONS.FAVOURITE_TOGGLE,
+        payload: { id: photoId },
+      });
     }
   };
 
-  const removeFavoritePhoto = (photoId) => {
-    dispatch({ type: ACTIONS.FAV_PHOTO_REMOVED, payload: { id: photoId } });
+  // Fetch photos from API topics
+  const fetchPhotosByTopic = topicId => {
+    axios.get(`http://localhost:8001/api/topics/photos/${topicId}`)
+      .then(response => {
+        dispatch({
+          type: ACTIONS.SET_PHOTO_BY_TOPIC,
+          payload: response.data,
+        });
+      });
   };
 
-  const openModal = (photo) => {
-    dispatch({ type: ACTIONS.OPEN_MODAL, payload: { photo } });
-  };
+  // fetch photos from API
+  useEffect(() => {
+    axios.get('http://localhost:8001/api/photos')
+      .then((response) => {
+        dispatch({
+          type: ACTIONS.SET_PHOTO_DATA,
+          payload: response.data,
+        });
+      });
+  }, []);
 
-  const closeModal = () => {
-    dispatch({ type: ACTIONS.CLOSE_MODAL });
-  };
-
-  const setSelectedTopic = (topicId) => {
-    dispatch({ type: ACTIONS.SET_SELECTED_TOPIC, payload: topicId });
-  };
+  // fetch topics from API
+  useEffect(() => {
+    axios.get('http://localhost:8001/api/topics')
+      .then((response) => {
+        dispatch({
+          type: ACTIONS.SET_TOPIC_DATA,
+          payload: response.data,
+        });
+      });
+  }, []);
 
   return {
-    ...state,
-    addFavoritePhoto,
-    removeFavoritePhoto,
-    openModal,
+    toggleModal,
     closeModal,
-    setSelectedTopic,
+    toggleFavorite,
+    fetchPhotosByTopic,
+    ...state,
   };
-}
+};
 
-export default useApplicationData;
+export default useApplication;

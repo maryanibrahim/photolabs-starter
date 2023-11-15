@@ -1,65 +1,33 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
 import "../styles/PhotoListItem.scss";
-import PhotoFavButton from './PhotoFavButton';
+import PhotoFavButton from "./PhotoFavButton";
 
-const PhotoListItem = ({
-  imageSource,
-  username,
-  profile,
-  id,
-  location,
-  isFavorited,
-  toggleFavorite,
-}) => {
-  // This function will be called when the favorite button is clicked
-  const handleFavoriteClick = (photoId) => {
-    toggleFavorite(photoId); 
-  }
+const PhotoListItem = (props) => {
+  const { photoData, toggleModal, toggleFavorite, ...state } = props;
 
+  const clickHandler = () => {
+    toggleModal(state.photosData.id);
+  };
+
+  // Rendering the photo list item
   return (
-    <div className="photo-list-item">
-      <div className="photo-fav-button-container">
-        <PhotoFavButton
-          initialIsFavorited={isFavorited}
-          photoId={String(id)}  
-          updateToFavPhotoIds={handleFavoriteClick} // Pass click handler to the button
-        />
-      </div>
-      <img
-        src={imageSource}
-        alt={`Photo ${id}`}
-        className="photo"
-      />
-      <div className="user-details">
-        <img
-          src={profile || "/path_to_default_image/default_profile.jpg"}
-          alt={`Profile of ${username}`}
-          className="profile-picture"
-        />
-        <div className="user-info">
-          <p className="photographer-username">{username}</p>
-          <p className="photo-location">{`${location.city}, ${location.country}`}</p>
+    <div className='photo-list__item'>
+      <PhotoFavButton id={state.photosData.id} toggleFavorite={toggleFavorite} {...state} />
+      <img className='photo-list__image' src={state.photosData.urls.regular} alt='Photo' onClick={clickHandler} />
+
+      <footer className='photo-list__user-details'>
+        <img className='photo-list__user-profile' src={state.photosData.user.profile} alt='Profile' />
+
+        <div className='photo-list__user-info'>
+          {state.photosData.user.name}
+
+          <div className='photo-list__user-location'>
+            {state.photosData.location.city}, {state.photosData.location.country}
+          </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
-};
-
-PhotoListItem.propTypes = {
-  imageSource: PropTypes.string.isRequired,
-  username: PropTypes.string.isRequired,
-  profile: PropTypes.string,
-  id: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]).isRequired,
-  location: PropTypes.shape({
-    city: PropTypes.string,
-    country: PropTypes.string,
-  }),
-  isFavorited: PropTypes.bool.isRequired,
-  toggleFavorite: PropTypes.func.isRequired,
 };
 
 export default PhotoListItem;

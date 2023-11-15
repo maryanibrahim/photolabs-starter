@@ -1,21 +1,20 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import '../styles/TopicListItem.scss';
+import React from "react";
+import "../styles/TopicListItem.scss";
 
-const TopicListItem = ({ topic }) => {
+const TopicListItem = (props) => {
+  const { fetchPhotosByTopic } = props;
+
+  const clickHandler = () => {
+    fetchPhotosByTopic(props.id)
+  };
+
   return (
-    <div className="topic-list__item">
-      {topic.title}
+    <div className="topic-list__item" onClick={clickHandler}>
+      <span>
+        {props.title}
+      </span>
     </div>
-  );
-};
-
-TopicListItem.propTypes = {
-  topic: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    slug: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-  }).isRequired,
+  )
 };
 
 export default TopicListItem;

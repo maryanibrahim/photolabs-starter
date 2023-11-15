@@ -1,47 +1,25 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import PhotoListItem from './PhotoListItem'; 
-import '../styles/PhotoList.scss';
+import React from "react";
+import "../styles/PhotoList.scss";
+import PhotoListItem from "./PhotoListItem";
 
-const PhotoList = ({ photos, likedPhotos, onLikePhoto, onOpenModal }) => {
-
-  const handlePhotoClick = (photo) => {
-    onOpenModal(photo);
-  };
-
-  const handleLikePhoto = (photoId) => {
-    if (typeof onLikePhoto !== 'function') {
-      return;
-    }
-    onLikePhoto(photoId);
-  };
+const PhotoList = (props) => {
+  const { toggleModal, toggleFavorite, photosData, ...state } = props;
 
   return (
     <ul className="photo-list">
-      {photos.map(photo => (
-        <li key={photo.id} onClick={() => handlePhotoClick(photo)}>
-          <PhotoListItem 
-            imageSource={photo.urls.regular}
-            username={photo.user.username}
-            profile={photo.user.profile}
-            id={String(photo.id)}  
-            location={photo.location}
-            toggleFavorite={() => handleLikePhoto(photo.id)}
-            isFavorited={likedPhotos.includes(photo.id)}
-            onLike={() => handleLikePhoto(photo.id)}
-          />
-        </li>
+      {/* Mapping through photosData array to render each photo as a list item */}
+      {photosData.map((photosData) => (
+
+    <PhotoListItem 
+        key={photosData.id} 
+        {...state} 
+        photosData={photosData} 
+        toggleModal={toggleModal} 
+        toggleFavorite={toggleFavorite} />
+
       ))}
     </ul>
   );
-}
-
-PhotoList.propTypes = {
-  photos: PropTypes.array.isRequired,
-  likedPhotos: PropTypes.array.isRequired,
-  onOpenModal: PropTypes.func.isRequired,
-  onLikePhoto: PropTypes.func.isRequired,
 };
-
 
 export default PhotoList;

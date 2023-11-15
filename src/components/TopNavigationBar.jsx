@@ -1,32 +1,22 @@
 import React from 'react';
+import '../styles/TopNavigationBar.scss'
 import TopicList from './TopicList';
-import topics from '../mocks/topics';
-import '../styles/TopNavigationBar.scss';
-import FavIcon from './FavIcon';
+import FavBadge from './FavBadge';
 
-const TopNavigationBar = ({ likedPhotos }) => {
-  const hasLikedPhotos = likedPhotos.length > 0;
+const TopNavigation = (props) => {
+  const { topicsData, fetchPhotosByTopic, ...state } = props;
 
   return (
     <div className="top-nav-bar">
       <span className="top-nav-bar__logo">PhotoLabs</span>
       
-      <TopicList topics={topics} />
-      
-      {hasLikedPhotos && (
-        <div className="fav-notification">
-          <div className="notification-dot"></div>
-        </div>
-        
-      )}
-      
-      <FavIcon
-        displayAlert={hasLikedPhotos}
-        selected={true}
-        alertColor={hasLikedPhotos ? 'yellow' : undefined}
-      />
+      <TopicList 
+      topicsData={topicsData} 
+      fetchPhotosByTopic={fetchPhotosByTopic} />
+
+      {state.photoFavourites.length > 0 ? <FavBadge isFavPhotoExist={state.photoFavourites} /> : <FavBadge />}
     </div>
-  );
+  )
 };
 
-export default TopNavigationBar;
+export default TopNavigation;
